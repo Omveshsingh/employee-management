@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Employee Management System</title>
+    <meta name="description" content="A modern employee management dashboard built with Spring Boot">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <!-- Background animated blobs -->
+    <div class="bg-blobs">
+        <div class="blob blob-1"></div>
+        <div class="blob blob-2"></div>
+        <div class="blob blob-3"></div>
+    </div>
+
+    <!-- Navbar -->
+    <nav class="navbar" id="navbar">
+        <div class="nav-brand">
+            <div class="nav-logo">
+                <svg width="28" height="28" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/>
+                    <circle cx="9" cy="7" r="4"/>
+                    <path d="M23 21v-2a4 4 0 0 0-3-3.87"/>
+                    <path d="M16 3.13a4 4 0 0 1 0 7.75"/>
+                </svg>
+            </div>
+            <span class="nav-title">EmpManager</span>
+        </div>
+        <div class="nav-actions">
+            <div class="nav-status" id="apiStatus">
+                <span class="status-dot"></span>
+                <span class="status-text">Connecting...</span>
+            </div>
+            <button class="btn btn-primary btn-glow" id="addEmployeeBtn" onclick="openModal()">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                Add Employee
+            </button>
+        </div>
+    </nav>
+
+    <!-- Main Content -->
+    <main class="main-content">
+
+        <!-- Stats Cards -->
+        <section class="stats-grid" id="statsGrid">
+            <div class="stat-card" id="statTotal">
+                <div class="stat-icon stat-icon-blue">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="totalEmployees">0</span>
+                    <span class="stat-label">Total Employees</span>
+                </div>
+            </div>
+            <div class="stat-card" id="statDepts">
+                <div class="stat-icon stat-icon-purple">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2" ry="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="totalDepts">0</span>
+                    <span class="stat-label">Departments</span>
+                </div>
+            </div>
+            <div class="stat-card" id="statSalary">
+                <div class="stat-icon stat-icon-green">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="12" y1="1" x2="12" y2="23"/><path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="avgSalary">₹0</span>
+                    <span class="stat-label">Avg. Salary</span>
+                </div>
+            </div>
+            <div class="stat-card" id="statMax">
+                <div class="stat-icon stat-icon-amber">
+                    <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+                </div>
+                <div class="stat-info">
+                    <span class="stat-value" id="maxSalary">₹0</span>
+                    <span class="stat-label">Max Salary</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Search and Filter Bar -->
+        <section class="toolbar" id="toolbar">
+            <div class="search-box" id="searchBox">
+                <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="text" id="searchInput" placeholder="Search employees..." oninput="filterEmployees()">
+            </div>
+            <div class="filter-chips" id="filterChips">
+                <button class="chip chip-active" data-dept="all" onclick="filterByDept('all', this)">All</button>
+            </div>
+        </section>
+
+        <!-- Employee Table -->
+        <section class="table-container glass-card" id="tableContainer">
+            <div class="table-header">
+                <h2 class="table-title">Employee Directory</h2>
+                <span class="table-count" id="tableCount">0 employees</span>
+            </div>
+            <div class="table-wrapper">
+                <table class="emp-table" id="employeeTable">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Employee</th>
+                            <th>Department</th>
+                            <th>Salary</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="employeeTableBody">
+                        <!-- Rows injected by JS -->
+                    </tbody>
+                </table>
+            </div>
+            <!-- Empty State -->
+            <div class="empty-state hidden" id="emptyState">
+                <svg width="64" height="64" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><line x1="19" y1="8" x2="19" y2="14"/><line x1="22" y1="11" x2="16" y2="11"/></svg>
+                <p>No employees found</p>
+                <span>Add your first employee to get started</span>
+            </div>
+        </section>
+    </main>
+
+    <!-- Modal Overlay -->
+    <div class="modal-overlay hidden" id="modalOverlay" onclick="closeModal()">
+        <div class="modal glass-card" onclick="event.stopPropagation()">
+            <div class="modal-header">
+                <h2 id="modalTitle">Add Employee</h2>
+                <button class="modal-close" onclick="closeModal()">
+                    <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+                </button>
+            </div>
+            <form id="employeeForm" onsubmit="handleFormSubmit(event)">
+                <input type="hidden" id="empEditId">
+                <div class="form-group">
+                    <label for="empId">Employee ID</label>
+                    <input type="number" id="empId" placeholder="e.g. 3" required min="1">
+                </div>
+                <div class="form-group">
+                    <label for="empName">Full Name</label>
+                    <input type="text" id="empName" placeholder="e.g. Priya Sharma" required>
+                </div>
+                <div class="form-group">
+                    <label for="empDept">Department</label>
+                    <input type="text" id="empDept" placeholder="e.g. Engineering" required>
+                </div>
+                <div class="form-group">
+                    <label for="empSalary">Salary (₹)</label>
+                    <input type="number" id="empSalary" placeholder="e.g. 55000" required min="0">
+                </div>
+                <div class="form-actions">
+                    <button type="button" class="btn btn-ghost" onclick="closeModal()">Cancel</button>
+                    <button type="submit" class="btn btn-primary" id="formSubmitBtn">Add Employee</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Toast container -->
+    <div class="toast-container" id="toastContainer"></div>
+
+    <script src="app.js"></script>
+</body>
+</html>
